@@ -1,4 +1,4 @@
-# encoding: utf-8
+# frozen_string_literal: true
 
 require 'active_support/json/encoding'
 
@@ -9,7 +9,7 @@ module Ckeditor
 
     class << self
       def escape_single_quotes(str)
-        str.gsub('\\', '\0\0').gsub('</', '<\/').gsub(/\r\n|\n|\r/, "\\n").gsub(/["']/) { |m| "\\#{m}" }
+        str.gsub('\\', '\0\0').gsub('</', '<\/').gsub(/\r\n|\n|\r/, '\\n').gsub(/["']/) { |m| "\\#{m}" }
       end
 
       def js_replace(dom_id, options = nil)
@@ -95,18 +95,19 @@ module Ckeditor
         Dir[folder.join('*/')].each do |subfolder|
           path = Pathname.new(subfolder)
           next if ['plugins'].include?(path.basename.to_s)
+
           files += Dir[path.join('**', extensions)]
         end
 
-        files.inject([]) do |items, name|
+        files.each_with_object([]) do |name, items|
           file = Pathname.new(name)
           base = file.basename('.*').to_s
+
+          next if name =~ /samples/
 
           if !name.include?('/lang/') || languages.include?(base) || languages.empty?
             items << file.relative_path_from(relative_folder).to_s
           end
-
-          items
         end
       end
     end
